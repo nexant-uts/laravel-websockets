@@ -62,7 +62,7 @@
     </div>
 
     <div
-      v-if="connected && app.statisticsEnabled"
+      v-if="connected && app.enable_statistics"
       class="w-full my-6 px-6"
     >
       <div class="flex justify-between items-center">
@@ -285,7 +285,9 @@
             this.connected = true;
             this.connecting = false;
 
-            if (this.app.statisticsEnabled) {
+            console.log(this.app);
+
+            if (this.app.enable_statistics) {
               this.loadChart();
             }
           });
@@ -298,6 +300,7 @@
           });
 
           this.pusher.connection.bind('error', event => {
+            console.log(event);
             if (event.data.code === 4100) {
               this.connected = false;
               this.logs = [];

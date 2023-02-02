@@ -2,18 +2,18 @@
 
 namespace BeyondCode\LaravelWebSockets\API;
 
+use React\Promise\Deferred;
+use Illuminate\Http\Request;
+use React\Promise\PromiseInterface;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
-use Illuminate\Http\Request;
-use React\Promise\Deferred;
-use React\Promise\PromiseInterface;
 
 class TriggerEvent extends Controller
 {
     /**
      * Handle the incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return PromiseInterface
      */
     public function __invoke(Request $request)
@@ -34,7 +34,8 @@ class TriggerEvent extends Controller
             // then the message simply will get broadcasted
             // across the other servers.
             $channel = $this->channelManager->find(
-                $request->appId, $channelName
+                $request->appId,
+                $channelName
             );
 
             $payload = [
@@ -45,20 +46,23 @@ class TriggerEvent extends Controller
 
             if ($channel) {
                 $channel->broadcastLocallyToEveryoneExcept(
-                    (object) $payload,
+                    (object)$payload,
                     $request->socket_id,
                     $request->appId
                 );
             }
 
             $this->channelManager->broadcastAcrossServers(
-                $request->appId, $request->socket_id, $channelName, (object) $payload
+                $request->appId,
+                $request->socket_id,
+                $channelName,
+                (object)$payload
             );
 
             $deferred = new Deferred();
 
             $this->ensureValidAppId($request->appId)
-                ->then(function ($app) use ($request, $channelName, $deferred) {
+                ->then(function($app) use ($request, $channelName, $deferred) {
                     if ($app->statisticsEnabled) {
                         StatisticsCollector::apiMessage($request->appId);
                     }
@@ -69,7 +73,7 @@ class TriggerEvent extends Controller
                         'payload' => $request->data,
                     ]);
 
-                    $deferred->resolve((object) []);
+                    $deferred->resolve((object)[]);
                 });
         }
 
