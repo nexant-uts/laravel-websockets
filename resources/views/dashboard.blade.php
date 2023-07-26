@@ -259,7 +259,7 @@
       methods: {
         connect () {
           this.connecting = true;
-
+          console.log(this.app);
           this.pusher = new Pusher(this.app.key, {
             wsHost: this.app.host === null ? window.location.hostname : this.app.host,
             wsPort: {{ $port }},
